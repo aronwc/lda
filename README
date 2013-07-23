@@ -1,0 +1,38 @@
+I modified gibbs.c to not die when NaN encountered. Also, I modified sldea.em.R to handle case when a topic was not assigned any words. -awc
+
+You can install R package from source with:
+install.packages('/Users/awculott/Programs/lda', repos = NULL, type="source")
+
+
+$ diff R/slda.em.R ~/Downloads/lda/R/slda.em.R 
+13,14d12
+< 	# to avoid topics with 0 counts. add small count to all docs for topic 1
+< 	document.sums[,1] <- document.sums[,1] + 0.0000000001
+20,21c18
+<             library(splines, quietly=TRUE, verbose=FALSE)
+<             library(penalized, quietly=TRUE, verbose=FALSE)
+---
+>             library(penalized)
+
+
+$ diff src/gibbs.c ~/Downloads/lda/src/gibbs.c 
+935,939d934
+< 		if (REAL(beta)[kk] != REAL(beta)[kk]) {
+< 			Rprintf("NaN! beta[0]=%g beta[1]=%g\n", kk, REAL(beta)[0], REAL(beta)[1]);
+< 			REAL(beta)[kk] = 0.00001;
+< 			Rprintf("\t now beta[%d]=%g nw=%d\n", kk, REAL(beta)[kk], nw);
+< 		}
+951,953d945
+< 		  if (p[kk] != p[kk]) {
+< 			Rprintf("encountered NaN with change=%g dv[dd]=%g var=%g beta[kk]=%g nw=%d\n", change, dv[dd], var, REAL(beta)[kk], nw);
+< 		  }
+967,968c959
+< 		Rprintf("pr of topic %d is NaN. Assigning random probability.\n", kk);
+< 		p[kk] = unif_rand();
+---
+> 		p[kk] = 0.0;
+994c985
+< 	  *z = 0;
+---
+> 	  *z = 0
+
